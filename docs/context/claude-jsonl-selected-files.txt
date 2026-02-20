@@ -1,0 +1,8 @@
+/Users/will/.claude/projects/-Users-will-Documents-Areas-TemplateRepos-malcomsonbrothers-b2b-rust-axum-sveltekit-monorepo/1bc17c58-743a-4480-8730-669354ae8173.jsonl
+/Users/will/.claude/projects/-Users-will-Documents-Areas-claude-claude-scratchpad/b7bac4cc-0d3e-4549-bd5e-724099ea62d2.jsonl
+/Users/will/.claude/projects/-Users-will-Documents-Areas-StreamerScraper-Code-tiktok-streamers-cli/e605d370-3a0e-425f-beb7-19a4279bcf55.jsonl
+/Users/will/.claude/projects/-Users-will-Documents-Areas-Domains-domain-prospector/738f78ab-63a6-4c1a-b1da-12531aacb0bd.jsonl
+/Users/will/.claude/projects/-Users-will-Documents-Areas-Domains-domain-prospector/d7806374-4f0f-4c67-9486-3509d76a0521.jsonl
+/Users/will/.claude/projects/-Users-will-Documents-Areas-Domains-domain-prospector/6bc7382f-7bc8-43f3-bcb1-29f3fc02ace2.jsonl
+/Users/will/.claude/projects/-Users-will-Documents-Areas-Domains-domain-prospector/441d20d7-e924-461a-bf6f-7656a175bd2e.jsonl
+/Users/will/.claude/projects/-Users-will-Documents-Areas-TemplateRepos-malcomsonbrothers-b2b-rust-axum-sveltekit-monorepo/3eae2a5c-9d90-494e-a743-11b3b6b5ce6d.jsonl

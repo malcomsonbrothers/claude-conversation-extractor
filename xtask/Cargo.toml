@@ -1,0 +1,11 @@
+[package]
+name = "xtask"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+chrono = { version = "0.4.42", default-features = true, features = ["clock"] }
+clap = { version = "4.5.31", features = ["derive"] }
+glob = "0.3.2"
+serde_json = "1.0.145"
