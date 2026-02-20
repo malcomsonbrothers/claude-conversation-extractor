@@ -11,7 +11,23 @@ This replaces the Python reference implementation with:
 - deterministic output contracts
 - testable parser and formatter layers
 
-## 2. Inputs and Schema Baseline
+## 2. Rust CLI Package Stack
+
+Primary CLI stack (from `nogit-reference/rust-cli-packages.md`):
+
+- `clap`: required; argument parsing, subcommands, help, validation
+- `dialoguer`: used for interactive prompts (optional flows like confirm/export selections)
+- `console`: used for styled terminal output and consistent color handling
+- `indicatif`: used for progress bars/spinners during long scans/exports
+
+Additional implementation crates:
+
+- `serde` + `serde_json`: JSONL decoding and tolerant parsing
+- `walkdir`/`glob`: transcript discovery
+- `regex`: search mode
+- `chrono`: timestamp parsing/formatting
+
+## 3. Inputs and Schema Baseline
 
 Baseline source:
 
@@ -35,7 +51,7 @@ Important compatibility note:
 - no explicit `schema` field observed
 - must parse defensively and ignore unknown fields by default
 
-## 3. Command Surface
+## 4. Command Surface
 
 Binary:
 
@@ -55,7 +71,7 @@ Optional compatibility aliases (for migration ergonomics):
 - `cc-convo list` -> `sessions list`
 - `cc-convo view` -> `sessions show`
 
-## 4. Global Options
+## 5. Global Options
 
 Supported on all subcommands:
 
@@ -70,9 +86,9 @@ Time filtering (applies to session/file mtime):
 - `--since-days <n>`
 - `--until <iso8601>`
 
-## 5. Sessions Commands
+## 6. Sessions Commands
 
-### 5.1 `sessions list`
+### 6.1 `sessions list`
 
 Purpose:
 
@@ -93,7 +109,7 @@ Output columns (table mode):
 - file size
 - message counts (`user`/`assistant`/other)
 
-### 5.2 `sessions show`
+### 6.2 `sessions show`
 
 Purpose:
 
@@ -105,9 +121,9 @@ Options:
 - `--max-lines <n>`
 - `--raw` (show raw JSON line objects)
 
-## 6. Export Command
+## 7. Export Command
 
-### 6.1 `export`
+### 7.1 `export`
 
 Purpose:
 
@@ -132,9 +148,9 @@ Filename contract:
 
 - `cc-convo-<YYYY-MM-DD>-<session-short>.<ext>`
 
-## 7. Search Command
+## 8. Search Command
 
-### 7.1 `search`
+### 8.1 `search`
 
 Purpose:
 
@@ -157,9 +173,9 @@ Result fields:
 - relevance
 - preview snippet
 
-## 8. Stats Command
+## 9. Stats Command
 
-### 8.1 `stats`
+### 9.1 `stats`
 
 Purpose:
 
@@ -173,9 +189,9 @@ Outputs:
 - model usage distribution (from assistant records)
 - parser skip/error counts
 
-## 9. Doctor Command
+## 10. Doctor Command
 
-### 9.1 `doctor`
+### 10.1 `doctor`
 
 Purpose:
 
@@ -188,9 +204,9 @@ Checks:
 - parse sample from latest files
 - permission and output-dir writeability
 
-## 10. Normalization Rules
+## 11. Normalization Rules
 
-### 10.1 Default extraction mode
+### 11.1 Default extraction mode
 
 Include:
 
@@ -203,7 +219,7 @@ Exclude:
 - binary payload blocks (`image`, `document`) unless `--detailed`
 - meta-only command caveat text unless `--raw`
 
-### 10.2 Detailed mode
+### 11.2 Detailed mode
 
 Include additionally:
 
@@ -212,13 +228,13 @@ Include additionally:
 - `tool_result` blocks (`tool_use_id`, `content`, `is_error`)
 - selected system/progress summaries (not raw spam by default)
 
-### 10.3 Timestamp behavior
+### 11.3 Timestamp behavior
 
 - preserve source `timestamp` when present
 - fallback to transcript mtime for ordering metadata
 - render all user-facing timestamps in ISO 8601
 
-## 11. Data Model (Rust)
+## 12. Data Model (Rust)
 
 Core structs:
 
@@ -232,16 +248,7 @@ Serde guidance:
 - use permissive `Option<T>` fields
 - retain unknown keys in `serde_json::Value` map for future compatibility
 
-## 12. Implementation Plan
-
-Crates:
-
-- `clap` for CLI
-- `serde` + `serde_json` for parsing
-- `walkdir`/`glob` for discovery
-- `regex` for search mode
-- `chrono` for timestamps
-- `console`/`dialoguer`/`indicatif` for UX polish
+## 13. Implementation Plan
 
 Suggested internal modules:
 
@@ -252,7 +259,7 @@ Suggested internal modules:
 - `format/markdown.rs`, `format/json.rs`, `format/html.rs`
 - `search/engine.rs`
 
-## 13. Acceptance Criteria
+## 14. Acceptance Criteria
 
 1. `cc-convo sessions list` shows latest sessions in descending mtime order.
 2. `cc-convo export --recent 5 --format markdown` writes 5 files with deterministic names.
@@ -260,4 +267,3 @@ Suggested internal modules:
 4. Unknown record types/fields do not crash parsing.
 5. All timestamps displayed in ISO 8601.
 6. Tests cover parser behavior for current observed record and block types.
-
