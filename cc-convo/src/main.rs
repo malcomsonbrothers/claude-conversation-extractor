@@ -1,6 +1,7 @@
 use anyhow::{anyhow, bail, Context, Result};
 use chrono::{DateTime, SecondsFormat, Utc};
-use clap::{Args, Parser, Subcommand, ValueEnum};
+use clap::{Args, CommandFactory, Parser, Subcommand, ValueEnum};
+use clap_complete::{generate, Shell};
 use console::style;
 use dialoguer::Confirm;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -52,6 +53,7 @@ enum Command {
     Search(SearchArgs),
     Stats(StatsArgs),
     Doctor(DoctorArgs),
+    Completions(CompletionsArgs),
     #[command(hide = true)]
     List(SessionsListArgs),
     #[command(hide = true)]
@@ -161,6 +163,12 @@ struct DoctorArgs {
     output: PathBuf,
 }
 
+#[derive(Args, Debug)]
+struct CompletionsArgs {
+    #[arg(value_enum)]
+    shell: Shell,
+}
+
 #[derive(Debug, Clone, Serialize)]
 struct Session {
     index: usize,
@@ -238,7 +246,15 @@ fn main() -> Result<()> {
         Command::Search(args) => cmd_search(&claude_dir, &time_window, &cli.global, args),
         Command::Stats(args) => cmd_stats(&claude_dir, &time_window, &cli.global, args),
         Command::Doctor(args) => cmd_doctor(&claude_dir, &time_window, &cli.global, args),
+        Command::Completions(args) => cmd_completions(args),
     }
+}
+
+fn cmd_completions(args: CompletionsArgs) -> Result<()> {
+    let mut cmd = Cli::command();
+    let bin_name = cmd.get_name().to_string();
+    generate(args.shell, &mut cmd, bin_name, &mut std::io::stdout());
+    Ok(())
 }
 
 fn cmd_sessions_list(

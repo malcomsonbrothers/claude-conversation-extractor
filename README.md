@@ -22,6 +22,11 @@ cargo run -p cc-convo -- export --recent 5 --format markdown
 
 # Health checks
 cargo run -p cc-convo -- doctor
+
+# Generate shell completions
+cargo run -p cc-convo -- completions zsh > _cc-convo
+cargo run -p cc-convo -- completions bash > cc-convo.bash
+cargo run -p cc-convo -- completions fish > cc-convo.fish
 ```
 
 Global time filters are supported across commands:
