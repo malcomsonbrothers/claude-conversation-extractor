@@ -1322,31 +1322,45 @@ fn build_context_preview(
     context_chars: usize,
     case_sensitive: bool,
 ) -> String {
-    let hay = if case_sensitive {
-        text.to_string()
+    if query.is_empty() {
+        return ellipsize(&text.replace('\n', " "), context_chars.saturating_mul(2));
+    }
+
+    let matched_range = if case_sensitive {
+        text.find(query).map(|start| (start, query.len()))
     } else {
-        text.to_lowercase()
+        let escaped = regex::escape(query);
+        RegexBuilder::new(&escaped)
+            .case_insensitive(true)
+            .build()
+            .ok()
+            .and_then(|re| re.find(text).map(|m| (m.start(), m.end() - m.start())))
     };
-    let needle = if case_sensitive {
-        query.to_string()
-    } else {
-        query.to_lowercase()
-    };
-    if let Some(pos) = hay.find(&needle) {
-        let start = pos.saturating_sub(context_chars);
-        let end = (pos + needle.len() + context_chars).min(text.len());
-        let slice = text.get(start..end).unwrap_or(text);
+
+    if let Some((match_start_byte, match_len_bytes)) = matched_range {
+        let total_chars = text.chars().count();
+        let match_start_char = text[..match_start_byte].chars().count();
+        let match_len_char = text[match_start_byte..match_start_byte + match_len_bytes]
+            .chars()
+            .count();
+
+        let start_char = match_start_char.saturating_sub(context_chars);
+        let end_char = (match_start_char + match_len_char + context_chars).min(total_chars);
+        let start_byte = byte_index_for_char_pos(text, start_char);
+        let end_byte = byte_index_for_char_pos(text, end_char);
+        let slice = &text[start_byte..end_byte];
+
         let mut preview = String::new();
-        if start > 0 {
+        if start_char > 0 {
             preview.push_str("...");
         }
         preview.push_str(slice);
-        if end < text.len() {
+        if end_char < total_chars {
             preview.push_str("...");
         }
         preview.replace('\n', " ")
     } else {
-        ellipsize(&text.replace('\n', " "), context_chars * 2)
+        ellipsize(&text.replace('\n', " "), context_chars.saturating_mul(2))
     }
 }
 
@@ -1355,11 +1369,24 @@ fn clean_preview(s: &str) -> String {
 }
 
 fn ellipsize(s: &str, max: usize) -> String {
-    if s.len() <= max {
+    if s.chars().count() <= max {
         s.to_string()
+    } else if max <= 3 {
+        ".".repeat(max)
     } else {
-        format!("{}...", &s[..max.saturating_sub(3)])
+        let prefix = s.chars().take(max - 3).collect::<String>();
+        format!("{prefix}...")
     }
+}
+
+fn byte_index_for_char_pos(s: &str, char_pos: usize) -> usize {
+    if char_pos == 0 {
+        return 0;
+    }
+    s.char_indices()
+        .nth(char_pos)
+        .map(|(idx, _)| idx)
+        .unwrap_or_else(|| s.len())
 }
 
 fn truncate_value(v: &Value, max: usize) -> String {
@@ -1585,5 +1612,19 @@ mod tests {
         let preview = build_context_preview(text, "notfound", 5, false);
         assert!(preview.contains("..."));
         assert!(preview.len() <= 13);
+    }
+
+    #[test]
+    fn build_context_preview_handles_unicode_without_panicking() {
+        let text = "prefix ══════ suffix";
+        let preview = build_context_preview(text, "notfound", 8, false);
+        assert!(preview.contains("..."));
+    }
+
+    #[test]
+    fn ellipsize_handles_unicode_boundaries() {
+        let s = "ab═cd";
+        let out = ellipsize(s, 4);
+        assert_eq!(out, "a...");
     }
 }
