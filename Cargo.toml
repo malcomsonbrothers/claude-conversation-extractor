@@ -1,4 +1,3 @@
 [workspace]
-members = ["xtask"]
+members = ["xtask", "cc-convo"]
 resolver = "2"
-

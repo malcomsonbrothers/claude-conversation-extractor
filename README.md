@@ -1,5 +1,35 @@
 # claude-conversation-extractor
 
+## `cc-convo` CLI (Rust)
+
+The main CLI binary is `cc-convo`.
+
+```bash
+# Run directly from workspace
+cargo run -p cc-convo -- --help
+
+# List latest sessions (sorted by transcript mtime desc)
+cargo run -p cc-convo -- sessions list --limit 10
+
+# Show one session by index or id
+cargo run -p cc-convo -- sessions show 1
+
+# Search corpus
+cargo run -p cc-convo -- search "tool_use" --max-results 20
+
+# Export last 5 sessions as markdown
+cargo run -p cc-convo -- export --recent 5 --format markdown
+
+# Health checks
+cargo run -p cc-convo -- doctor
+```
+
+Global time filters are supported across commands:
+
+- `--since-hours <n>`
+- `--since-days <n>`
+- `--until <RFC3339>`
+
 ## Xtask Automation
 
 This repo uses a Rust `xtask` command for transcript schema inventory generation.
